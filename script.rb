@@ -4,67 +4,153 @@
 class LinkedList
   def initialize
     @list = []
+    @head = nil
+    @tail = nil
+    @second = nil
+    @second_last = nil
+    @size = 0
   end
 
   def append(value)
-    new_node = Node.new(value)
-    @list.push(new_node)
-    @list.last.next_node = @list.index(new_node)
+    if @head.nil? && @tail.nil?
+      prepend(value)
+    else
+      new_node = Node.new(value)
+      if tail.nil?
+        @head.next_node = new_node
+      else
+        @tail.next_node = new_node
+      end
+      @tail = new_node
+      @size += 1
+    end
   end
 
   def prepend(value)
-    new_node = Node.new(value)
-    @list.shift(new_node)
-    @list[0].next_node = 1
+    if @head.nil? && @tail.nil?
+      new_node = Node.new(value)
+      @head = new_node
+    else
+      if tail.nil?
+        @tail = @head.clone
+        @head = Node.new(value, @tail)
+      else 
+        @head = Node.new(value, @head.clone)
+      end
+    end
+    @size += 1
   end
 
   def size
-    @list.length
+    @size
   end
 
   def head
-    @list[0]
+    @head
   end
 
   def tail
-    @list.last
+    @tail
   end
 
   def at(index)
-    @list[index]
+    return nil if @head.nil?
+
+    current_node = @head
+    count = 0
+    while count <= index
+      return nil if current_node.nil?
+      if index == count
+        return current_node
+      else
+        count += 1
+        current_node = current_node.next_node
+      end
+    end
   end
 
   def pop
-    @list.pop
+    return nil if @head.nil?
+
+    current_node = @head
+    the_next_node = current_node.next_node
+    while 2.positive?
+      if the_next_node == @tail
+        @tail = current_node
+        @tail.next_node = nil
+        return the_next_node
+      else
+        current_node = the_next_node
+        the_next_node = current_node.next_node
+      end
+    end
   end
 
   def contains?(value)
-    @list.any? { |n| n.value == value }
+    return false if @head.nil?
+
+    current_node = @head
+    while 2.positive?
+      return false if current_node.value.nil?
+
+      return true if value == current_node.value
+
+      current_node = current_node.next_node
+    end
   end
 
   def find(value)
-    @list.each_with_index { |n, i| return i if n.value == value }
+    index = 0
+    current_node = @head
+    while 2.positive?
+      return nil if current_node.value.nil?
+
+      return index if value == current_node.value
+
+      current_node = current_node.next_node
+      index += 1
+    end
   end
 
   def to_s
-    @list.each { |i| print "( #{i} ) -> " }
-    print 'nil'
+    return 'nil' if @head.nil?
+    the_string = ""
+    reached_tail = false
+    current_node = @head
+    until reached_tail
+      reached_tail = true if current_node == @tail
+      the_string = the_string + "#{( current_node.value ) -> }"
+    end
   end
 
   def insert_at(value, index)
-    front_arr = @list[0..index - 1]
-    back_arr = @list[index + 1..]
-    back_arr.each { |v| v.next_node += 1 }
-    front_arr.push(Node.new(value, index))
-    @list = front_arr + back_arr
+    prepend(value) if index == 0
+    current_node = @head
+    the_next_node = @head.next_node
+    count = 0
+    until count == index - 1
+      append(value) if current_node.nil?
+      current_node = the_next_node
+      the_next_node = current_node.next_node
+      count += 1
+    end
+    new_node = Node.new(value, the_next_node)
+    current_node.next_node = new_node
   end
 
   def remove_at(index)
-    front_arr = @list[0..index - 1]
-    back_arr = @list[index + 1..]
-    back_arr.each { |v| v.next_node -= 1 }
-    @list = front_arr + back_arr
+    @head = @head.next_node if index == 0
+    previous_node = @head
+    current_node = @head.next_node
+    count = 0
+    until count == index + 1
+      return nil if current_node.nil?
+      previous_node = current_node
+      current_node = current_node.next_node
+    end
+    previous_node.next_node = current_node.next_node
   end
+
 end
 
 # the class for the node
